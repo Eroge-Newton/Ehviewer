@@ -131,7 +131,7 @@ public final class SignInScene extends SolidScene implements EditText.OnEditorAc
         mSignIn = ViewUtils.$$(loginForm, R.id.sign_in);
         mSignInViaWebView = (TextView) ViewUtils.$$(loginForm, R.id.sign_in_via_webview);
         mSignInViaCookies = (TextView) ViewUtils.$$(loginForm, R.id.sign_in_via_cookies);
-        mSkipSigningIn = (TextView) ViewUtils.$$(loginForm, R.id.skip_signing_in);
+        mSkipSigningIn = (TextView) ViewUtils.$$(loginForm, R.id.tourist_mode);
 
         mSignInViaWebView.setPaintFlags(mSignInViaWebView.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG | Paint.ANTI_ALIAS_FLAG);
         mSignInViaCookies.setPaintFlags(mSignInViaCookies.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG | Paint.ANTI_ALIAS_FLAG);
@@ -289,7 +289,7 @@ public final class SignInScene extends SolidScene implements EditText.OnEditorAc
                 .setMethod(EhClient.METHOD_SIGN_IN)
                 .setArgs(username, password)
                 .setCallback(callback);
-        EhApplication.getEhClient(context).execute(request);
+        EhApplication.getEhClient().execute(request);
 
         mSigningIn = true;
     }
@@ -310,7 +310,7 @@ public final class SignInScene extends SolidScene implements EditText.OnEditorAc
         EhRequest request = new EhRequest()
                 .setMethod(EhClient.METHOD_GET_PROFILE)
                 .setCallback(callback);
-        EhApplication.getEhClient(context).execute(request);
+        EhApplication.getEhClient().execute(request);
     }
 
     private void redirectTo() {
@@ -341,7 +341,7 @@ public final class SignInScene extends SolidScene implements EditText.OnEditorAc
             return;
         }
 
-        if (EhApplication.getEhCookieStore(context).hasSignedIn()) {
+        if (EhApplication.getEhCookieStore().hasSignedIn()) {
             getProfile();
         } else {
             mSigningIn = false;

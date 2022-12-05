@@ -18,6 +18,7 @@ package com.hippo.ehviewer.spider;
 
 import android.content.Context;
 import android.graphics.BitmapFactory;
+import android.graphics.ImageDecoder;
 import android.os.AsyncTask;
 import android.os.Process;
 import android.text.TextUtils;
@@ -157,8 +158,8 @@ public final class SpiderQueen implements Runnable {
     private volatile int mDownloadPage = -1;
 
     private SpiderQueen(EhApplication application, @NonNull GalleryInfo galleryInfo) {
-        mHttpClient = EhApplication.getOkHttpClient(application);
-        mSpiderInfoCache = EhApplication.getSpiderInfoCache(application);
+        mHttpClient = EhApplication.getOkHttpClient();
+        mSpiderInfoCache = EhApplication.getSpiderInfoCache();
         mGalleryInfo = galleryInfo;
         mSpiderDen = new SpiderDen(mGalleryInfo);
 
@@ -1679,6 +1680,8 @@ public final class SpiderQueen implements Runnable {
                 if (is != null) {
                     try {
                         image = Image.decode(((FileInputStream) is), false);
+                    } catch (ImageDecoder.DecodeException e) {
+                        e.printStackTrace();
                     } finally {
                         try {
                             is.close();

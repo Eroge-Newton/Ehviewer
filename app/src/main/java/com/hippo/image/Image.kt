@@ -17,13 +17,13 @@
  */
 package com.hippo.image
 
-import android.content.Context
 import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.ImageDecoder
 import android.graphics.ImageDecoder.ALLOCATOR_DEFAULT
 import android.graphics.ImageDecoder.ALLOCATOR_SOFTWARE
+import android.graphics.ImageDecoder.DecodeException
 import android.graphics.ImageDecoder.ImageInfo
 import android.graphics.ImageDecoder.Source
 import android.graphics.PixelFormat
@@ -31,6 +31,7 @@ import android.graphics.drawable.AnimatedImageDrawable
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import androidx.core.graphics.drawable.toDrawable
+import com.hippo.ehviewer.EhApplication
 import java.io.FileInputStream
 import java.nio.ByteBuffer
 import java.nio.channels.FileChannel
@@ -43,6 +44,7 @@ class Image private constructor(
 ) {
     internal var mObtainedDrawable: Drawable?
     private var mBitmap: Bitmap? = null
+    private var mCanvas: Canvas? = null
 
     init {
         mObtainedDrawable = null
@@ -86,6 +88,7 @@ class Image private constructor(
         }
         mObtainedDrawable?.callback = null
         mObtainedDrawable = null
+        mCanvas = null
         mBitmap?.recycle()
         mBitmap = null
         release()
@@ -94,11 +97,12 @@ class Image private constructor(
     private fun prepareBitmap() {
         if (mBitmap != null) return
         mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        mCanvas = Canvas(mBitmap!!)
     }
 
     private fun updateBitmap() {
         prepareBitmap()
-        mObtainedDrawable!!.draw(Canvas(mBitmap!!))
+        mObtainedDrawable!!.draw(mCanvas!!)
     }
 
     fun render(
@@ -126,12 +130,13 @@ class Image private constructor(
 
     fun texImage(init: Boolean, offsetX: Int, offsetY: Int, width: Int, height: Int) {
         check(!hardware) { "Hardware buffer cannot be used in glgallery" }
-        val bitmap: Bitmap = if (animated) {
+        val bitmap: Bitmap? = if (animated) {
             updateBitmap()
-            mBitmap!!
+            mBitmap
         } else {
-            (mObtainedDrawable as BitmapDrawable).bitmap
+            (mObtainedDrawable as BitmapDrawable?)?.bitmap
         }
+        bitmap ?: return
         nativeTexImage(
             bitmap,
             init,
@@ -151,7 +156,7 @@ class Image private constructor(
     val delay: Int
         get() {
             if (animated)
-                return 100
+                return 10
             return 0
         }
 
@@ -164,12 +169,13 @@ class Image private constructor(
         var screenWidth: Int = 0
         var screenHeight: Int = 0
 
-        @JvmStatic
-        fun initialize(context: Context) {
+        init {
+            val context = EhApplication.application
             screenWidth = context.resources.displayMetrics.widthPixels
             screenHeight = context.resources.displayMetrics.heightPixels
         }
 
+        @Throws(DecodeException::class)
         @JvmStatic
         fun decode(stream: FileInputStream, hardware: Boolean = true): Image {
             val src = ImageDecoder.createSource(
@@ -181,6 +187,7 @@ class Image private constructor(
             return Image(src, hardware = hardware)
         }
 
+        @Throws(DecodeException::class)
         @JvmStatic
         fun decode(buffer: ByteBuffer, hardware: Boolean = true, release: () -> Unit? = {}): Image {
             val src = ImageDecoder.createSource(buffer)

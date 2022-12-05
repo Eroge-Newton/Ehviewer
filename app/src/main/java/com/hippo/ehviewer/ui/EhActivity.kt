@@ -22,7 +22,6 @@ import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.content.res.Resources.Theme
-import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.view.WindowManager
@@ -32,7 +31,6 @@ import androidx.annotation.StyleRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.hippo.ehviewer.EhApplication
-import com.hippo.ehviewer.EhApplication.locked_last_leave_time
 import com.hippo.ehviewer.R
 import com.hippo.ehviewer.Settings
 import rikka.core.res.resolveColor
@@ -71,22 +69,14 @@ abstract class EhActivity : AppCompatActivity() {
                 WindowInsetsHelper.LISTENER
             )
         super.onCreate(savedInstanceState)
-        window.statusBarColor = Color.TRANSPARENT
         window.decorView.post {
             val rootWindowInsets = window.decorView.rootWindowInsets
             if (rootWindowInsets != null && rootWindowInsets.systemWindowInsetBottom >= Resources.getSystem().displayMetrics.density * 40) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                    window.navigationBarDividerColor = getColor(R.color.navigation_bar_divider)
-                }
+                window.navigationBarDividerColor = getColor(R.color.navigation_bar_divider)
                 window.navigationBarColor =
                     theme.resolveColor(android.R.attr.navigationBarColor) and 0x00ffffff or -0x20000000
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     window.isNavigationBarContrastEnforced = false
-                }
-            } else {
-                window.navigationBarColor = Color.TRANSPARENT
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    window.isNavigationBarContrastEnforced = true
                 }
             }
         }
@@ -100,7 +90,7 @@ abstract class EhActivity : AppCompatActivity() {
 
     override fun onResume() {
         val locked_resume_time = System.currentTimeMillis() / 1000
-        val locked_delay_time = locked_resume_time - locked_last_leave_time
+        val locked_delay_time = locked_resume_time - EhApplication.locked_last_leave_time
         if (locked_delay_time < Settings.getSecurityDelay() * 60) {
             EhApplication.locked = false
         } else if (Settings.getSecurity() && isAuthenticationSupported() && EhApplication.locked) {

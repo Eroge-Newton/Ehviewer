@@ -60,17 +60,13 @@ public class Settings {
     public static final String KEY_GALLERY_SITE = "gallery_site";
     public static final String KEY_LIST_MODE = "list_mode";
     public static final String KEY_DETAIL_SIZE = "detail_size";
-    public static final String KEY_THUMB_SIZE = "thumb_size";
+    public static final String KEY_THUMB_SIZE = "thumb_size_";
     public static final String KEY_THUMB_RESOLUTION = "thumb_resolution";
-    private static final String KEY_SHOW_COMMENTS = "show_gallery_comments";
-    private static final boolean DEFAULT_SHOW_COMMENTS = true;
     public static final String KEY_SHOW_TAG_TRANSLATIONS = "show_tag_translations";
     public static final String KEY_DEFAULT_CATEGORIES = "default_categories";
     public static final int DEFAULT_DEFAULT_CATEGORIES = EhUtils.ALL_CATEGORY;
     public static final String KEY_EXCLUDED_TAG_NAMESPACES = "excluded_tag_namespaces";
     public static final String KEY_EXCLUDED_LANGUAGES = "excluded_languages";
-    private static final String KEY_PREVIEW_NUM = "preview_num";
-    private static final int DEFAULT_PREVIEW_NUM = 60;
     /********************
      ****** Privacy and Security
      ********************/
@@ -82,7 +78,6 @@ public class Settings {
     public static final String KEY_DOWNLOAD_SAVE_SCHEME = "image_scheme";
     public static final String KEY_DOWNLOAD_SAVE_AUTHORITY = "image_authority";
     public static final String KEY_DOWNLOAD_SAVE_PATH = "image_path";
-
     public static final String KEY_NOTIFICATION_REQUIRED = "notification_required";
     public static final String KEY_DOWNLOAD_SAVE_QUERY = "image_query";
     public static final String KEY_DOWNLOAD_SAVE_FRAGMENT = "image_fragment";
@@ -105,6 +100,10 @@ public class Settings {
     public static final String KEY_DOMAIN_FRONTING = "domain_fronting";
     public static final String KEY_APP_LANGUAGE = "app_language";
     public static final String KEY_LIST_THUMB_SIZE = "list_tile_size";
+    private static final String KEY_SHOW_COMMENTS = "show_gallery_comments";
+    private static final boolean DEFAULT_SHOW_COMMENTS = true;
+    private static final String KEY_PREVIEW_NUM = "preview_num";
+    private static final int DEFAULT_PREVIEW_NUM = 60;
     private static final String TAG = Settings.class.getSimpleName();
     private static final String KEY_VERSION_CODE = "version_code";
     private static final int DEFAULT_VERSION_CODE = 0;
@@ -130,7 +129,7 @@ public class Settings {
     private static final int DEFAULT_LAUNCH_PAGE = 0;
     private static final int DEFAULT_LIST_MODE = 0;
     private static final int DEFAULT_DETAIL_SIZE = 0;
-    private static final int DEFAULT_THUMB_SIZE = 1;
+    private static final int DEFAULT_THUMB_SIZE = 120;
     private static final int DEFAULT_THUMB_RESOLUTION = 0;
     private static final String KEY_SHOW_JPN_TITLE = "show_jpn_title";
     private static final boolean DEFAULT_SHOW_JPN_TITLE = false;
@@ -247,7 +246,6 @@ public class Settings {
      ****** Update
      ********************/
     private static final String KEY_BETA_UPDATE_CHANNEL = "beta_update_channel";
-    private static final boolean DEFAULT_BETA_UPDATE_CHANNEL = EhApplication.BETA;
     private static final String KEY_SKIP_UPDATE_VERSION = "skip_update_version";
     private static final int DEFAULT_SKIP_UPDATE_VERSION = 0;
     private static final boolean DEFAULT_SAVE_PARSE_ERROR_BODY = true;
@@ -425,14 +423,6 @@ public class Settings {
         sSettingsPre.edit().putString(key, Integer.toString(value)).apply();
     }
 
-    public static int getVersionCode() {
-        return getInt(KEY_VERSION_CODE, DEFAULT_VERSION_CODE);
-    }
-
-    public static void putVersionCode(int value) {
-        putInt(KEY_VERSION_CODE, value);
-    }
-
     @Nullable
     public static String getDisplayName() {
         return getString(KEY_DISPLAY_NAME, DEFAULT_DISPLAY_NAME);
@@ -541,20 +531,12 @@ public class Settings {
     }
 
     public static int getThumbSize() {
-        return getIntFromStr(KEY_THUMB_SIZE, DEFAULT_THUMB_SIZE);
+        return dip2px(getInt(KEY_THUMB_SIZE, DEFAULT_THUMB_SIZE));
     }
 
-    @DimenRes
-    public static int getThumbSizeResId() {
-        switch (getThumbSize()) {
-            case 0:
-                return R.dimen.gallery_grid_column_width_large;
-            default:
-            case 1:
-                return R.dimen.gallery_grid_column_width_middle;
-            case 2:
-                return R.dimen.gallery_grid_column_width_small;
-        }
+    public static int dip2px(int dpValue) {
+        final float scale = sContext.getResources().getDisplayMetrics().density;
+        return (int) (dpValue * scale + 0.5f);
     }
 
     public static int getThumbResolution() {
@@ -1031,10 +1013,6 @@ public class Settings {
         }
 
         return true;
-    }
-
-    public static boolean getBetaUpdateChannel() {
-        return getBoolean(KEY_BETA_UPDATE_CHANNEL, DEFAULT_BETA_UPDATE_CHANNEL);
     }
 
     public static void putBetaUpdateChannel(boolean value) {

@@ -96,7 +96,7 @@ public class GalleryPreviewsScene extends ToolbarScene {
 
         Context context = getContext();
         AssertUtils.assertNotNull(context);
-        mClient = EhApplication.getEhClient(context);
+        mClient = EhApplication.getEhClient();
         if (savedInstanceState == null) {
             onInit();
         } else {
@@ -148,7 +148,7 @@ public class GalleryPreviewsScene extends ToolbarScene {
 
         mAdapter = new GalleryPreviewAdapter();
         mRecyclerView.setAdapter(mAdapter);
-        int columnWidth = resources.getDimensionPixelOffset(Settings.getThumbSizeResId());
+        int columnWidth = Settings.getThumbSize();
         AutoGridLayoutManager layoutManager = new AutoGridLayoutManager(context, columnWidth, LayoutUtils.dp2pix(context, 16));
         layoutManager.setStrategy(AutoGridLayoutManager.STRATEGY_SUITABLE_SIZE);
         mRecyclerView.setLayoutManager(layoutManager);

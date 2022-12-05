@@ -85,7 +85,7 @@ abstract class GalleryAdapter extends RecyclerView.Adapter<GalleryHolder> {
 
         setType(type);
 
-        mDownloadManager = EhApplication.getDownloadManager(inflater.getContext());
+        mDownloadManager = EhApplication.getDownloadManager();
     }
 
     private void adjustPaddings() {
@@ -126,7 +126,7 @@ abstract class GalleryAdapter extends RecyclerView.Adapter<GalleryHolder> {
                 break;
             }
             case GalleryAdapter.TYPE_GRID: {
-                int columnWidth = mResources.getDimensionPixelOffset(Settings.getThumbSizeResId());
+                int columnWidth = Settings.getThumbSize();
                 mLayoutManager.setColumnSize(columnWidth);
                 mLayoutManager.setStrategy(AutoStaggeredGridLayoutManager.STRATEGY_SUITABLE_SIZE);
                 if (null != mListDecoration) {

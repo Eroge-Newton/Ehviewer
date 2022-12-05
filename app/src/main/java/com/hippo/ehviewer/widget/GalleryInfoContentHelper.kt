@@ -16,8 +16,6 @@
 package com.hippo.ehviewer.widget
 
 import android.annotation.SuppressLint
-import android.icu.text.SimpleDateFormat
-import android.icu.util.Calendar
 import android.os.Bundle
 import android.os.Parcelable
 import com.hippo.ehviewer.EhApplication
@@ -25,7 +23,12 @@ import com.hippo.ehviewer.FavouriteStatusRouter
 import com.hippo.ehviewer.client.data.GalleryInfo
 import com.hippo.widget.ContentLayout.ContentHelper
 import com.hippo.yorozuya.IntIdGenerator
+import java.time.Instant
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 import java.util.Locale
+import kotlin.math.max
+import kotlin.math.min
 
 abstract class GalleryInfoContentHelper : ContentHelper<GalleryInfo?>() {
     @JvmField
@@ -48,11 +51,11 @@ abstract class GalleryInfoContentHelper : ContentHelper<GalleryInfo?>() {
                 info.favoriteSlot = slot
             }
         }
-        EhApplication.getFavouriteStatusRouter().addListener(listener)
+        EhApplication.favouriteStatusRouter.addListener(listener)
     }
 
     fun destroy() {
-        EhApplication.getFavouriteStatusRouter().removeListener(listener)
+        EhApplication.favouriteStatusRouter.removeListener(listener)
     }
 
     override fun onAddData(data: GalleryInfo?) {
@@ -64,8 +67,8 @@ abstract class GalleryInfoContentHelper : ContentHelper<GalleryInfo?>() {
             info?.let {
                 if (maxGid == -1) maxGid = info.gid.toInt()
                 if (minGid == -1) minGid = info.gid.toInt()
-                maxGid = Math.max(maxGid.toLong(), info.gid).toInt()
-                minGid = Math.min(minGid.toLong(), info.gid).toInt()
+                maxGid = max(maxGid.toLong(), info.gid).toInt()
+                minGid = min(minGid.toLong(), info.gid).toInt()
                 map[info.gid] = info
             }
         }
@@ -97,7 +100,7 @@ abstract class GalleryInfoContentHelper : ContentHelper<GalleryInfo?>() {
         val bundle = super.saveInstanceState(superState) as Bundle
 
         // TODO It's a bad design
-        val router = EhApplication.getFavouriteStatusRouter()
+        val router = EhApplication.favouriteStatusRouter
         val id = router.saveDataMap(map)
         bundle.putInt(KEY_DATA_MAP, id)
         bundle.putInt(KEY_MIN_GID, minGid)
@@ -109,7 +112,7 @@ abstract class GalleryInfoContentHelper : ContentHelper<GalleryInfo?>() {
         val bundle = state as Bundle
         val id = bundle.getInt(KEY_DATA_MAP, IntIdGenerator.INVALID_ID)
         if (id != IntIdGenerator.INVALID_ID) {
-            val router = EhApplication.getFavouriteStatusRouter()
+            val router = EhApplication.favouriteStatusRouter
             val map = router.restoreDataMap(id)
             if (map != null) {
                 this.map = map
@@ -121,11 +124,9 @@ abstract class GalleryInfoContentHelper : ContentHelper<GalleryInfo?>() {
     }
 
     fun goTo(time: Long) {
-        val calendar = Calendar.getInstance()
-        calendar.timeInMillis = time
-        val date = calendar.time
-        val format = SimpleDateFormat("yyyy-MM-dd", Locale.US)
-        jumpTo = format.format(date)
+        val formatter = DateTimeFormatter
+            .ofPattern("yyyy-MM-dd", Locale.US).withZone(ZoneOffset.UTC)
+        jumpTo = formatter.format(Instant.ofEpochMilli(time))
         doGoToPage(Int.MAX_VALUE / 2)
     }
 

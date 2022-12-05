@@ -278,7 +278,7 @@ public final class GalleryCommentsScene extends ToolbarScene
                 .setArgs(mGalleryDetail.apiUid, mGalleryDetail.apiKey, mGalleryDetail.gid, mGalleryDetail.token, id, vote)
                 .setCallback(new VoteCommentListener(context,
                         activity.getStageId(), getTag()));
-        EhApplication.getEhClient(context).execute(request);
+        EhApplication.getEhClient().execute(request);
     }
 
     @SuppressLint("InflateParams")
@@ -408,7 +408,7 @@ public final class GalleryCommentsScene extends ToolbarScene
                         .setMethod(EhClient.METHOD_GET_GALLERY_DETAIL)
                         .setArgs(url)
                         .setCallback(new RefreshCommentListener(activity, activity.getStageId(), getTag()));
-                EhApplication.getEhClient(activity).execute(request);
+                EhApplication.getEhClient().execute(request);
             }
         }
 
@@ -591,7 +591,7 @@ public final class GalleryCommentsScene extends ToolbarScene
                         .setArgs(url, comment, mCommentId != 0 ? Long.toString(mCommentId) : null)
                         .setCallback(new CommentGalleryListener(context,
                                 activity.getStageId(), getTag(), mCommentId));
-                EhApplication.getEhClient(context).execute(request);
+                EhApplication.getEhClient().execute(request);
                 hideSoftInput();
                 hideEditPanel(true);
             }
@@ -709,7 +709,7 @@ public final class GalleryCommentsScene extends ToolbarScene
                         .setMethod(EhClient.METHOD_GET_GALLERY_DETAIL)
                         .setArgs(url)
                         .setCallback(new RefreshCommentListener(activity, activity.getStageId(), getTag()));
-                EhApplication.getEhClient(activity).execute(request);
+                EhApplication.getEhClient().execute(request);
             }
         }
     }
@@ -858,8 +858,7 @@ public final class GalleryCommentsScene extends ToolbarScene
         }
 
         private CharSequence generateComment(Context context, ObservedTextView textView, GalleryComment comment) {
-            Spanned sp = Html.fromHtml(comment.comment, Html.FROM_HTML_MODE_LEGACY, new URLImageGetter(textView,
-                    EhApplication.getConaco(context)), null);
+            Spanned sp = Html.fromHtml(comment.comment, Html.FROM_HTML_MODE_LEGACY, new URLImageGetter(textView), null);
 
             SpannableStringBuilder ssb = new SpannableStringBuilder(sp);
 
